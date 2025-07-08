@@ -1,5 +1,5 @@
-import type { Client } from "@/chat/interfaces/chat.interface"
 import { Button } from "@/components/ui/button"
+import type { Client } from "../interface/chat.interface"
 
 interface Props {
   client: Client
