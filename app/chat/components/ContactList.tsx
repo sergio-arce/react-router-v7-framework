@@ -1,47 +1,52 @@
-import { Button } from "@/components/ui/button"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import type { Client } from "../interface/chat.interface"
-import { NavLink, useParams } from "react-router"
+import { NavLink, useParams } from 'react-router';
+import { Button } from '~/components/ui/button';
+import { ScrollArea } from '~/components/ui/scroll-area';
+
+import type { Client } from '../interfaces/chat.interface';
 
 interface Props {
-  clients: Client[]
+  clients: Client[];
 }
 
 export const ContactList = ({ clients }: Props) => {
-
-  const { id } = useParams()
-  console.log({id})
+  const { id } = useParams();
 
   return (
-    <ScrollArea className="h-[calc(100vh-134px)]">
+    <ScrollArea className="h-[calc(100vh-120px)]">
       <div className="space-y-4 p-4">
         <div className="space-y-1">
           <h3 className="px-2 text-sm font-semibold">Contacts</h3>
           <div className="space-y-1">
-            
-            {/* {isLoading && (
-              <div className="text-gray-500 text-sm">Loading...</div>
-            )} */}
-
-            {
-              clients?.map((client) => (
-                <NavLink
-                  key={client.id}
-                  to={`/chat/client/${client.id}`}
-                  className={({ isActive }) => `w-full justify-start flex items-center px-2 py-1 rounded-md transition-colors
-                    ${isActive ? "bg-gray-200 text-gray-900" : "text-gray-600 hover:bg-gray-100"}`}
+            {clients.map((client) => (
+              <NavLink
+                key={client.id}
+                to={`/chat/client/${client.id}`}
+                className={({ isActive, isPending }) =>
+                  isActive
+                    ? 'w-full my-2 justify-start flex items-center gap-2 bg-black transition-colors duration-200 rounded-2xl text-primary font-semibold'
+                    : isPending
+                    ? 'w-full my-2 justify-start flex items-center gap-2 bg-primary/10 transition-colors duration-200 rounded-2xl text-primary font-semibold'
+                    : 'w-full my-2 justify-start flex items-center gap-2 text-muted-foreground'
+                }
+              >
+                <div
+                  className={
+                    id === client.id
+                      ? '"h-6 w-6 rounded-full bg-black mr-2 flex-shrink-0 flex items-center justify-center text-white text-xs"'
+                      : '"h-6 w-6 rounded-full bg-gray-300 mr-2 flex-shrink-0 flex items-center justify-center text-white text-xs"'
+                  }
                 >
-                  <div
-                    className={`h-6 w-6 rounded-full mr-2 flex-shrink-0 flex items-center justify-center text-white text-xs ${client.id == id ? "bg-blue-500" : 'bg-gray-300'}`}
-                  >
-                    {client?.name.charAt(0)}
-                  </div>
-                  <span className={`${client.id == id ? "text-blue-500 font-medium" : "text-gray-600 "}`}>
-                    {client.name}
-                  </span>
-                </NavLink>
-              ))
-            }
+                  {client.name.charAt(0) + client.name.charAt(1)}
+                </div>
+                <span
+                  className={
+                    id === client.id ? 'text-white' : 'text-muted-foreground'
+                  }
+                >
+                  {client.name}
+                </span>
+              </NavLink>
+            ))}
           </div>
         </div>
         <div className="pt-4 border-t mt-4">
@@ -61,5 +66,5 @@ export const ContactList = ({ clients }: Props) => {
         </div>
       </div>
     </ScrollArea>
-  )
-}
+  );
+};

@@ -1,12 +1,9 @@
-export type Plan = 'basic' | 'pro' | 'premium' | 'enterprise';
-
-export const Plan = {
-  BASIC: 'basic',
-  PRO: 'pro',
-  PREMIUM: 'premium',
-  ENTERPRISE: 'enterprise',
-} as const 
-
+export enum Plan {
+  BASIC = 'basic',
+  PRO = 'pro',
+  PREMIUM = 'premium',
+  ENTERPRISE = 'enterprise',
+}
 
 export interface Client {
   id: string; // C1-12345

@@ -1,52 +1,137 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import placeholderImage from "@/assets/images/placeholder.svg"
-import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router";
+import { useEffect } from 'react';
+import { data, Form, Link, redirect, useNavigate } from 'react-router';
 
-function LoginPage() {
+import { Button } from '~/components/ui/button';
+import { Card, CardContent } from '~/components/ui/card';
+import { Label } from '~/components/ui/label';
+import { Input } from '~/components/ui/input';
 
-  const navigate = useNavigate()
+import placeholder from '~/assets/images/placeholder.svg';
+import type { Route } from './+types/login-page';
 
-  const onAppleNavigate = () => {
-    navigate('/auth/testing')
+import { commitSession, getSession } from '~/sessions.server';
+import { loginUser } from '~/fake/fake-data';
+export async function loader({ request }: Route.LoaderArgs) {
+  const session = await getSession(request.headers.get('Cookie'));
+  console.log('🚀 session', session.get('userId'));
+
+  if (session.get('userId')) {
+    return redirect('/chat');
   }
+
+  return data(
+    { error: session.get('error') },
+    {
+      headers: {
+        'Set-Cookie': await commitSession(session),
+      },
+    }
+  );
+}
+
+// Login Action
+export async function action({ request }: Route.ActionArgs) {
+  const session = await getSession(request.headers.get('Cookie'));
+  const form = await request.formData();
+  const email = form.get('email');
+  const password = form.get('password');
+
+  if (email === 'algo@google.com') {
+    session.flash('error', 'Invalid email');
+    // return redirect('/auth/login?error=Invalid Email', {
+    //   headers: {
+    //     'Set-Cookie': await commitSession(session),
+    //   },
+    // });
+    return data(
+      {
+        error: 'Invalid Email!!!',
+      },
+      {
+        headers: {
+          'Set-Cookie': await commitSession(session),
+        },
+        status: 400,
+        statusText: 'Bad Request',
+      }
+    );
+  }
+
+  const user = await loginUser();
+
+  session.set('userId', user.id);
+  session.set('token', user.token);
+  session.set('name', user.name);
+  // Login succeeded, send them to the home page.
+  return redirect('/chat', {
+    headers: {
+      'Set-Cookie': await commitSession(session),
+    },
+  });
+}
+
+const LoginPage = ({ actionData }: Route.ComponentProps) => {
+  const navigate = useNavigate();
+
+  console.log('🚀 actionData', actionData?.error);
+
+  const onAppleSignIn = () => {
+    navigate('/auth/testing');
+  };
+
+  useEffect(() => {
+    if (actionData?.error) {
+      alert(actionData.error);
+    }
+  }, [actionData]);
 
   return (
     <div className="flex flex-col gap-6">
       <Card className="overflow-hidden p-0">
         <CardContent className="grid p-0 md:grid-cols-2">
-          <form className="p-6 md:p-8">
+          <Form method="post" action="/auth/login" className="p-6 md:p-8">
             <div className="flex flex-col gap-6">
               <div className="flex flex-col items-center text-center">
                 <h1 className="text-2xl font-bold">Welcome back</h1>
-                <p className="text-balance text-muted-foreground">Login to your Acme Inc account</p>
+                <p className="text-balance text-muted-foreground">
+                  Login to your Acme Inc account
+                </p>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="m@example.com" required />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="m@example.com"
+                  required
+                  name="email"
+                />
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
                   <Label htmlFor="password">Password</Label>
-                  <a href="#" className="ml-auto text-sm underline-offset-2 hover:underline">
+                  <a
+                    href="#"
+                    className="ml-auto text-sm underline-offset-2 hover:underline"
+                  >
                     Forgot your password?
                   </a>
                 </div>
-                <Input id="password" type="password" required />
+                <Input id="password" type="password" required name="password" />
               </div>
               <Button type="submit" className="w-full">
                 Login
               </Button>
               <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                <span className="relative z-10 bg-background px-2 text-muted-foreground">Or continue with</span>
+                <span className="relative z-10 bg-background px-2 text-muted-foreground">
+                  Or continue with
+                </span>
               </div>
               <div className="grid grid-cols-3 gap-4">
-                <Button 
-                  onClick={onAppleNavigate}
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full"
+                  onClick={onAppleSignIn}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                     <path
@@ -76,16 +161,19 @@ function LoginPage() {
                 </Button>
               </div>
               <div className="text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <Link to="/auth/register" className="underline underline-offset-4">
-                  Sign up
+                Don&apos;t have an account?{' '}
+                <Link
+                  to="/auth/register"
+                  className="underline underline-offset-4"
+                >
+                  Create an account
                 </Link>
               </div>
             </div>
-          </form>
+          </Form>
           <div className="relative hidden bg-muted md:block">
             <img
-              src={placeholderImage}
+              src={placeholder}
               alt="Image"
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />
@@ -93,10 +181,10 @@ function LoginPage() {
         </CardContent>
       </Card>
       <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+        By clicking continue, you agree to our <a href="#">Terms of Service</a>{' '}
+        and <a href="#">Privacy Policy</a>.
       </div>
     </div>
-  )
-}
-
-export default LoginPage
+  );
+};
+export default LoginPage;

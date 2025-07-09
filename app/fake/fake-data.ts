@@ -1,13 +1,17 @@
-import { Plan, type Client, type Message } from '@/chat/interface/chat.interface';
-import { sleep } from '@/lib/sleep';
+import {
+  type Client,
+  type Message,
+  Plan,
+} from '~/chat/interfaces/chat.interface';
+import { sleep } from '~/lib/sleep';
 
 // ! Auth
 export const loginUser = async () => {
   await sleep(1200);
   return {
     id: 'U1-12345',
-    name: 'Jhon Doe',
-    email: 'doe-jhon@gmail.com',
+    name: 'Fernando Herrera',
+    email: 'fherrera@gmail.com',
     token: 'token-1234567890',
   };
 };
@@ -23,7 +27,7 @@ export const checkAuth = async (token: string) => {
 
   return {
     id: 'U1-12345',
-    name: 'Jhon Doe',
+    name: 'Fernando Herrera',
   };
 };
 
