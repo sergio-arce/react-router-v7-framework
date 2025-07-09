@@ -33,6 +33,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 export async function action({ request }: Route.ActionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
   const form = await request.formData();
+  console.log({ form })
   const email = form.get('email');
   const password = form.get('password');
 
@@ -58,6 +59,7 @@ export async function action({ request }: Route.ActionArgs) {
   }
 
   const user = await loginUser();
+  console.log({ user })
 
   session.set('userId', user.id);
   session.set('token', user.token);
